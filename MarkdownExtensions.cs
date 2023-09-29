@@ -17,7 +17,7 @@ public static class MarkdownExtensions
       .UseYamlFrontMatter()
       .Build();
 
-  public static T GetContents<T>(this string markdown) where T: IMarkdown
+  public static T GetContents<T>(this string markdown) where T: IMarkdown, new()
   {
     var document = Markdown.Parse(markdown, Pipeline);
     var block = document
@@ -25,7 +25,7 @@ public static class MarkdownExtensions
         .FirstOrDefault();
 
     if (block == null)
-      return default;
+      return new T { Markdown = markdown };
 
     var yaml =
         block
