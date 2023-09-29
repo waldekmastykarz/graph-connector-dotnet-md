@@ -1,9 +1,8 @@
 using Azure.Identity;
 using Microsoft.Graph;
 using Microsoft.Extensions.Configuration;
-using System.Net;
 
-class GraphClient
+class GraphService
 {
   static GraphServiceClient? _client;
   static HttpClient? _httpClient;
@@ -14,7 +13,7 @@ class GraphClient
     {
       if (_client is null)
       {
-        var builder = new ConfigurationBuilder().AddUserSecrets<GraphClient>();
+        var builder = new ConfigurationBuilder().AddUserSecrets<GraphService>();
         var config = builder.Build();
 
         var clientId = config["AzureAd:ClientId"];
@@ -23,9 +22,14 @@ class GraphClient
 
         var credential = new ClientSecretCredential(tenantId, clientId, clientSecret);
         var handlers = GraphClientFactory.CreateDefaultHandlers();
-        // add as a second middleware to get access to the access token
-        handlers.Insert(1, new CompleteJobWithDelayHandler(1000));
-        _httpClient = GraphClientFactory.Create(handlers, proxy: new WebProxy("http://localhost:8000"));
+        handlers.Insert(0, new CompleteJobWithDelayHandler(60000));
+        // add at the end to get all information about the request
+        // handlers.Add(new DebugRequestHandler());
+        // add at the beginning to get all information about the response
+        // and also have the response body decompressed
+        // handlers.Insert(0, new DebugResponseHandler());
+        // _httpClient = GraphClientFactory.Create(handlers, proxy: new WebProxy("http://localhost:8000"));
+        _httpClient = GraphClientFactory.Create(handlers);
 
         _client = new GraphServiceClient(_httpClient, credential);
       }

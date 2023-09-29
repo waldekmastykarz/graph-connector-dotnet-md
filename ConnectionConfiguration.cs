@@ -35,6 +35,7 @@ static class ConnectionConfiguration
     {
       return new Schema
       {
+        BaseType = "microsoft.graph.externalItem",
         Properties = new()
         {
           new Property
@@ -72,7 +73,7 @@ static class ConnectionConfiguration
             Name = "date",
             Type = PropertyType.DateTime,
             IsQueryable = true,
-            IsSearchable = true,
+            IsRefinable = true,
             IsRetrievable = true,
             Labels = new() { Label.LastModifiedDateTime }
           },
